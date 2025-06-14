@@ -1,0 +1,11 @@
+name: Skript-NCP
+main: org.bcdtech.SkriptNcpInit
+api-version: 1.19
+version: @version@
+description: @description@
+author: Blue Cheese Development
+website: https://github.com/squareq/skript-ncp
+prefix: Skript-NCP
+depend:
+  - Skript
+  - NoCheatPlus

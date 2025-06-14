@@ -1,0 +1,65 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.apache.tools.ant.filters.ReplaceTokens
+
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
+
+group = 'org.bcdtech'
+version = '1.0-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+repositories {
+    mavenCentral()
+    maven { url 'https://repo.papermc.io/repository/maven-public/' } //Paper
+    maven { url 'https://repo.skriptlang.org/releases' } // Skript
+    flatDir{
+        dirs 'libs'
+    }
+}
+
+dependencies {
+    compileOnly 'com.github.SkriptLang:Skript:2.10.0'
+    compileOnly name:'NoCheatPlus'
+    compileOnly('io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT')
+}
+
+tasks.register('release', ProcessResources) {
+    group = 'build'
+    from 'src/main/resources', {
+        include '**'
+        version = project.property('version')
+        def description = 'Skript-NCP hooks into the anticheat NoCheatPlus.'
+        filter ReplaceTokens, tokens: [
+                'version': version,
+                'description': description,
+        ]
+    }
+    into 'build/resources/main'
+}
+
+tasks.named('shadowJar', ShadowJar) {
+    from 'src/main/java'
+    dependsOn release
+    //from 'src/main/resources'
+    include '**/*'  // Include all files in these directories
+    dependencies {
+        from 'skript-ncp'
+    }
+    archiveFileName = 'skriptncp.jar'
+}
+
+
+tasks.register('server', Copy) {
+    from shadowJar
+    // Change this to wherever you want your jar to build
+    into 'C:\\Users\\cryst\\mclocalhost\\plugins'
+}
+
