@@ -3,6 +3,8 @@ package org.bcdtech;
 import ch.njol.skript.util.Version;
 import fr.neatmonster.nocheatplus.checks.CheckType;
 import fr.neatmonster.nocheatplus.hooks.NCPHookManager;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bcdtech.ncpsyntax.events.Hooks.HkAnyCheckFailure;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -24,19 +26,21 @@ public class SkriptNcpInit extends JavaPlugin {
         boolean pluginEnabled = true;
         if (!Skript.isAcceptRegistrations()) {
             pluginEnabled = false;
-            Bukkit.getConsoleSender().sendMessage("&4Skript is no longer accepting registrations, and addons can no longer be loaded!");
-            Bukkit.getConsoleSender().sendMessage("&4...Ensure that no odd software is altering plugin order, such as Plugman.");
-        }
-        if (!Skript.getVersion().isSmallerThan(new Version(2,10, 99))){
+            pinstance.getServer().getConsoleSender().sendMessage(Component.text("Skript is no longer accepting registrations, and addons can no longer be loaded!").color(NamedTextColor.RED));
+			pinstance.getServer().getConsoleSender().sendMessage(Component.text("...Ensure that no odd software is altering plugin order, such as Plugman.").color(NamedTextColor.RED));
+
+		}
+        if (Skript.getVersion().isSmallerThan(new Version(2,10, 99))){
             pluginEnabled = false;
-            Bukkit.getConsoleSender().sendMessage("&4Skript must be running at a version no less than 2.10.");
-            Bukkit.getConsoleSender().sendMessage("&4...You are using a very old version of Skript, please update it.");
-        }
+			pinstance.getServer().getConsoleSender().sendMessage(Component.text("Skript must be running at a version no less than 2.10.").color(NamedTextColor.RED));
+			pinstance.getServer().getConsoleSender().sendMessage(Component.text("...You are using a very old version of Skript, please update it.").color(NamedTextColor.RED));
+		}
         if (!Bukkit.getPluginManager().isPluginEnabled("nocheatplus")){
             pluginEnabled = false;
-            Bukkit.getConsoleSender().sendMessage("&4NoCheatPlus could not be detected.");
-            Bukkit.getConsoleSender().sendMessage("&4...Ensure that you have it downloaded, as well as that no odd software is altering plugin order, such as Plugman.");
-        }
+			pinstance.getServer().getConsoleSender().sendMessage(Component.text("NoCheatPlus could not be detected.").color(NamedTextColor.RED));
+			pinstance.getServer().getConsoleSender().sendMessage(Component.text("...Ensure that you have it downloaded, as well as that no odd software is altering plugin order, such as Plugman.").color(NamedTextColor.RED));
+
+		}
         if(pluginEnabled){
             try {
                 ainstance = Skript.registerAddon(pinstance);
@@ -44,11 +48,12 @@ public class SkriptNcpInit extends JavaPlugin {
                 ainstance.loadClasses("org.bcdtech.ncpsyntax", "expressions", "types", "events.Hooks", "events", "effects", "conditions");
             } catch (IOException e) {
                 throw new RuntimeException(e);
-            }
-            NCPHookManager.addHook(CheckType.ALL, new HkAnyCheckFailure());
+            } finally {
+				NCPHookManager.addHook(CheckType.ALL, new HkAnyCheckFailure());
+			}
         } else {
-            Bukkit.getConsoleSender().sendMessage("&4Disabling plugin.");
-            Bukkit.getPluginManager().disablePlugin(getPluginInstance());
+			pinstance.getServer().getConsoleSender().sendMessage(Component.text("Disabling plugin.").color(NamedTextColor.RED));
+			Bukkit.getPluginManager().disablePlugin(getPluginInstance());
         }
 
     }
